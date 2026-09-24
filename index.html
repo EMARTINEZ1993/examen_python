@@ -290,6 +290,14 @@
         </div>
       </div>
 
+      <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-6 md:p-8 shadow-2xl backdrop-blur">
+        <h3 class="text-lg font-bold text-white mb-1 flex items-center gap-2">
+          <i class="fa-solid fa-clipboard-check text-sky-400"></i> Revisión de respuestas
+        </h3>
+        <p class="text-xs text-slate-400 mb-4">Consulta cuáles respuestas fueron correctas y cuáles debes revisar.</p>
+        <div id="answer-review" class="space-y-3"></div>
+      </div>
+
       <!-- Gráfico de Rendimiento por Grupo -->
       <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-6 md:p-8 shadow-2xl backdrop-blur">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
@@ -886,12 +894,14 @@ print(resultado)`,
         
         const pct = Math.round((lastAttempt.correct / lastAttempt.total) * 100);
         document.getElementById("res-correct-count").textContent = `${lastAttempt.correct} de ${lastAttempt.total} correctas (${pct}%)`;
+        renderAnswerReview();
       } else {
         document.getElementById("res-student-name").textContent = "Sin Registro";
         document.getElementById("res-student-group").textContent = "--";
         document.getElementById("res-date").textContent = "--";
         document.getElementById("res-score-badge").innerHTML = `0.0 <span class="text-lg text-slate-400 font-normal">/ 5.0</span>`;
         document.getElementById("res-correct-count").textContent = "0 de 15 correctas";
+        document.getElementById("answer-review").innerHTML = '<p class="text-sm text-slate-500 italic">La revisión está disponible al finalizar un examen.</p>';
       }
 
       document.getElementById("total-attempts-count").textContent = attempts.length;
@@ -899,6 +909,35 @@ print(resultado)`,
       renderAttemptsTable();
       renderGroupChart();
       loadSharedAttempts();
+    }
+
+    function renderAnswerReview() {
+      const review = document.getElementById("answer-review");
+      review.innerHTML = "";
+
+      QUESTIONS.forEach((question, index) => {
+        const selectedAnswer = userAnswers[index];
+        const isCorrect = selectedAnswer === question.answer;
+        const statusClass = isCorrect
+          ? "border-emerald-200 bg-emerald-50"
+          : "border-rose-200 bg-rose-50";
+        const statusTextClass = isCorrect ? "text-emerald-700" : "text-rose-700";
+        const selectedText = selectedAnswer === null
+          ? "Sin responder"
+          : question.options[selectedAnswer];
+
+        const item = document.createElement("div");
+        item.className = `rounded-xl border p-4 ${statusClass}`;
+        item.innerHTML = `
+          <div class="flex flex-wrap items-start justify-between gap-2">
+            <p class="text-sm font-semibold text-slate-900">${index + 1}. ${escapeHtml(question.question)}</p>
+            <span class="text-xs font-bold ${statusTextClass}">${isCorrect ? "Correcta" : "Incorrecta"}</span>
+          </div>
+          <p class="mt-2 text-xs text-slate-700"><strong>Tu respuesta:</strong> ${escapeHtml(selectedText)}</p>
+          ${isCorrect ? "" : `<p class="mt-1 text-xs text-emerald-700"><strong>Respuesta correcta:</strong> ${escapeHtml(question.options[question.answer])}</p>`}
+        `;
+        review.appendChild(item);
+      });
     }
 
     /* Renderizar Tabla Histórica */
