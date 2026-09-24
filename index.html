@@ -624,6 +624,7 @@ print(resultado)`,
 
     const LOCAL_STORAGE_KEY_ATTEMPTS = "flash_python_exam_attempts";
     const LOCAL_STORAGE_KEY_DEVICE_BLOCKED = "flash_python_device_completed";
+    const GOOGLE_SHEETS_ENDPOINT = "https://script.google.com/macros/s/AKfycbwPX4BxX4FzIOInoQhEZkb8rCRhLdqT_V8SrxIZXEvYX0Blpz64uQHSNhfyIDUb8kCxZQ/exec";
 
     // Inicialización al cargar la página
     window.onload = function() {
@@ -780,7 +781,7 @@ print(resultado)`,
       document.getElementById("modal-confirm").classList.add("hidden");
     }
 
-    function finishExam() {
+    async function finishExam() {
       closeModal();
       clearInterval(timerInterval);
 
@@ -809,6 +810,7 @@ print(resultado)`,
       };
 
       saveAttempt(attemptData);
+      await sendAttemptToGoogleSheets(attemptData);
 
       // Bloquear Equipo
       localStorage.setItem(LOCAL_STORAGE_KEY_DEVICE_BLOCKED, "true");
@@ -823,9 +825,47 @@ print(resultado)`,
       localStorage.setItem(LOCAL_STORAGE_KEY_ATTEMPTS, JSON.stringify(attempts));
     }
 
+    async function sendAttemptToGoogleSheets(data) {
+      if (!GOOGLE_SHEETS_ENDPOINT) {
+        return;
+      }
+
+      return fetch(GOOGLE_SHEETS_ENDPOINT, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(data)
+      }).catch(() => {
+        console.warn("No fue posible enviar el resultado a Google Sheets.");
+      });
+    }
+
     function getStoredAttempts() {
       const raw = localStorage.getItem(LOCAL_STORAGE_KEY_ATTEMPTS);
       return raw ? JSON.parse(raw) : [];
+    }
+
+    async function loadSharedAttempts() {
+      if (!GOOGLE_SHEETS_ENDPOINT) {
+        return;
+      }
+
+      try {
+        const response = await fetch(GOOGLE_SHEETS_ENDPOINT);
+        if (!response.ok) {
+          throw new Error("No se pudieron consultar los resultados compartidos.");
+        }
+
+        const sharedAttempts = await response.json();
+        if (Array.isArray(sharedAttempts)) {
+          localStorage.setItem(LOCAL_STORAGE_KEY_ATTEMPTS, JSON.stringify(sharedAttempts));
+          renderAttemptsTable();
+          renderGroupChart();
+          document.getElementById("total-attempts-count").textContent = sharedAttempts.length;
+        }
+      } catch (error) {
+        console.warn("Se mostrarán los resultados locales:", error);
+      }
     }
 
     /* Mostrar Pantalla de Resultados */
@@ -858,6 +898,7 @@ print(resultado)`,
 
       renderAttemptsTable();
       renderGroupChart();
+      loadSharedAttempts();
     }
 
     /* Renderizar Tabla Histórica */

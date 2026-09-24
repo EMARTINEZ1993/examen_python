@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel del profesor | Examen Python</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #17212b;
+      --muted: #66737d;
+      --line: #dce5e8;
+      --paper: #f6f8f5;
+      --white: #ffffff;
+      --teal: #087f73;
+      --teal-soft: #dff2ed;
+      --yellow: #f2bd43;
+      --coral: #e6745b;
+      --shadow: 0 18px 45px rgba(23, 33, 43, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: "DM Sans", sans-serif;
+    }
+    .shell { max-width: 1180px; margin: 0 auto; padding: 28px 22px 48px; }
+    header {
+      display: flex; align-items: flex-end; justify-content: space-between; gap: 24px;
+      margin-bottom: 28px;
+    }
+    .eyebrow { margin: 0 0 8px; color: var(--teal); font-size: .75rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    h1, h2 { font-family: "Space Grotesk", sans-serif; margin: 0; }
+    h1 { font-size: clamp(2rem, 4vw, 3.5rem); line-height: .98; letter-spacing: -.04em; }
+    h2 { font-size: 1.1rem; }
+    .subtitle { margin: 12px 0 0; color: var(--muted); }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; border: 0; }
+    .button {
+      display: inline-flex; align-items: center; gap: 8px; padding: 11px 15px; border-radius: 10px;
+      font-weight: 700; transition: transform .2s, box-shadow .2s, background .2s;
+    }
+    .button:hover { transform: translateY(-1px); }
+    .button.primary { color: white; background: var(--teal); box-shadow: 0 8px 18px rgba(8, 127, 115, .2); }
+    .button.secondary { color: var(--ink); background: white; border: 1px solid var(--line); }
+    .status { min-height: 24px; color: var(--muted); font-size: .85rem; text-align: right; }
+    .status.error { color: #b8422c; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+    .stat, .panel { background: var(--white); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
+    .stat { padding: 20px; position: relative; overflow: hidden; }
+    .stat::after { content: ""; position: absolute; right: -18px; bottom: -25px; width: 76px; height: 76px; border-radius: 50%; background: var(--teal-soft); }
+    .stat:nth-child(2)::after { background: #fff1c9; }
+    .stat:nth-child(3)::after { background: #ffe0d8; }
+    .stat:nth-child(4)::after { background: #dfe9f7; }
+    .stat-label { color: var(--muted); font-size: .78rem; font-weight: 600; }
+    .stat-value { display: block; margin-top: 7px; font: 700 2rem "Space Grotesk", sans-serif; }
+    .dashboard { display: grid; grid-template-columns: 1.1fr .9fr; gap: 18px; margin-bottom: 18px; }
+    .panel { padding: 22px; }
+    .panel-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 15px; margin-bottom: 18px; }
+    .panel-heading p { margin: 5px 0 0; color: var(--muted); font-size: .85rem; }
+    .chart-wrap { height: 280px; }
+    .filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+    input, select { min-height: 42px; border: 1px solid var(--line); border-radius: 9px; padding: 0 12px; color: var(--ink); background: #fbfcfb; outline: none; }
+    input { flex: 1 1 220px; }
+    input:focus, select:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(8, 127, 115, .12); }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 650px; }
+    th, td { padding: 14px 12px; border-bottom: 1px solid #edf1f1; text-align: left; white-space: nowrap; }
+    th { color: var(--muted); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; }
+    td { font-size: .9rem; }
+    tbody tr:hover { background: #f7faf8; }
+    .group-pill { display: inline-block; padding: 4px 8px; border-radius: 99px; background: var(--teal-soft); color: var(--teal); font-size: .75rem; font-weight: 700; }
+    .score { font-weight: 700; color: var(--teal); }
+    .empty { padding: 34px; color: var(--muted); text-align: center; }
+    @media (max-width: 800px) {
+      header { align-items: flex-start; flex-direction: column; }
+      .actions { justify-content: flex-start; }
+      .status { text-align: left; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .dashboard { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 480px) {
+      .shell { padding: 22px 14px 36px; }
+      .stats { gap: 9px; }
+      .stat { padding: 15px; }
+      .stat-value { font-size: 1.55rem; }
+      .panel { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div>
+        <p class="eyebrow">Proyecto Flash / Control docente</p>
+        <h1>Resultados del examen</h1>
+        <p class="subtitle">Vista general de todos los aprendices registrados en Google Sheets.</p>
+      </div>
+      <div>
+        <div class="actions">
+          <button class="button secondary" type="button" onclick="downloadCSV()">↓ Descargar CSV</button>
+          <button class="button primary" type="button" onclick="loadResults()">↻ Actualizar</button>
+        </div>
+        <div id="status" class="status" aria-live="polite"></div>
+      </div>
+    </header>
+
+    <section class="stats" aria-label="Resumen">
+      <article class="stat"><span class="stat-label">Intentos totales</span><strong id="total-attempts" class="stat-value">0</strong></article>
+      <article class="stat"><span class="stat-label">Promedio general</span><strong id="average-score" class="stat-value">0.0</strong></article>
+      <article class="stat"><span class="stat-label">Mejor resultado</span><strong id="best-score" class="stat-value">0.0</strong></article>
+      <article class="stat"><span class="stat-label">Último registro</span><strong id="last-date" class="stat-value" style="font-size: 1rem;">--</strong></article>
+    </section>
+
+    <section class="dashboard">
+      <article class="panel">
+        <div class="panel-heading"><div><h2>Promedio por grupo</h2><p>Comparación de notas sobre 5.0</p></div></div>
+        <div class="chart-wrap"><canvas id="group-chart"></canvas></div>
+      </article>
+      <article class="panel">
+        <div class="panel-heading"><div><h2>Participación</h2><p>Cantidad de intentos por grupo</p></div></div>
+        <div class="chart-wrap"><canvas id="attempts-chart"></canvas></div>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-heading">
+        <div><h2>Histórico completo</h2><p id="visible-count">Mostrando 0 resultados</p></div>
+      </div>
+      <div class="filters">
+        <input id="search" type="search" placeholder="Buscar por nombre..." oninput="renderTable()">
+        <select id="group-filter" onchange="renderTable()">
+          <option value="">Todos los grupos</option>
+          <option value="G1">Grupo G1</option>
+          <option value="G2">Grupo G2</option>
+          <option value="G3">Grupo G3</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Aprendiz</th><th>Grupo</th><th>Aciertos</th><th>Nota</th><th>Fecha</th></tr></thead>
+          <tbody id="results-body"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const GOOGLE_SHEETS_ENDPOINT = "https://script.google.com/macros/s/AKfycbwPX4BxX4FzIOInoQhEZkb8rCRhLdqT_V8SrxIZXEvYX0Blpz64uQHSNhfyIDUb8kCxZQ/exec";
+    let attempts = [];
+    let groupChart;
+    let attemptsChart;
+
+    function escapeHtml(value) {
+      return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    async function loadResults() {
+      const status = document.getElementById("status");
+      status.className = "status";
+      status.textContent = "Consultando resultados...";
+      try {
+        const response = await fetch(GOOGLE_SHEETS_ENDPOINT);
+        if (!response.ok) throw new Error("Respuesta no válida del servidor");
+        const data = await response.json();
+        attempts = Array.isArray(data) ? data : [];
+        renderDashboard();
+        status.textContent = `Actualizado: ${new Date().toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" })}`;
+      } catch (error) {
+        status.className = "status error";
+        status.textContent = "No se pudieron cargar los resultados. Revisa el despliegue de Apps Script.";
+      }
+    }
+
+    function renderDashboard() {
+      const scores = attempts.map(item => Number(item.score) || 0);
+      const average = scores.length ? scores.reduce((sum, score) => sum + score, 0) / scores.length : 0;
+      document.getElementById("total-attempts").textContent = attempts.length;
+      document.getElementById("average-score").textContent = average.toFixed(2);
+      document.getElementById("best-score").textContent = (scores.length ? Math.max(...scores) : 0).toFixed(1);
+      document.getElementById("last-date").textContent = attempts.length ? attempts[attempts.length - 1].date || "--" : "--";
+      renderTable();
+      renderCharts();
+    }
+
+    function renderTable() {
+      const search = document.getElementById("search").value.trim().toLowerCase();
+      const group = document.getElementById("group-filter").value;
+      const visible = attempts.filter(item => {
+        return (!search || String(item.name).toLowerCase().includes(search)) && (!group || item.group === group);
+      }).slice().reverse();
+      document.getElementById("visible-count").textContent = `Mostrando ${visible.length} de ${attempts.length} resultados`;
+      const body = document.getElementById("results-body");
+      if (!visible.length) {
+        body.innerHTML = '<tr><td colspan="5" class="empty">No hay resultados para este filtro.</td></tr>';
+        return;
+      }
+      body.innerHTML = visible.map(item => `
+        <tr>
+          <td><strong>${escapeHtml(item.name)}</strong></td>
+          <td><span class="group-pill">${escapeHtml(item.group)}</span></td>
+          <td>${Number(item.correct) || 0} / ${Number(item.total) || 15}</td>
+          <td class="score">${escapeHtml(item.score)}</td>
+          <td>${escapeHtml(item.date)}</td>
+        </tr>`).join("");
+    }
+
+    function renderCharts() {
+      const groups = ["G1", "G2", "G3"];
+      const groupScores = groups.map(group => attempts.filter(item => item.group === group).map(item => Number(item.score) || 0));
+      const averages = groupScores.map(scores => scores.length ? (scores.reduce((sum, score) => sum + score, 0) / scores.length).toFixed(2) : 0);
+      const totals = groupScores.map(scores => scores.length);
+      const colors = ["#087f73", "#f2bd43", "#e6745b"];
+      if (groupChart) groupChart.destroy();
+      if (attemptsChart) attemptsChart.destroy();
+      groupChart = new Chart(document.getElementById("group-chart"), {
+        type: "bar",
+        data: { labels: groups.map(group => `Grupo ${group}`), datasets: [{ data: averages, backgroundColor: colors, borderRadius: 7, barThickness: 34 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 5, ticks: { stepSize: 1 } }, x: { grid: { display: false } } } }
+      });
+      attemptsChart = new Chart(document.getElementById("attempts-chart"), {
+        type: "doughnut",
+        data: { labels: groups.map(group => `Grupo ${group}`), datasets: [{ data: totals, backgroundColor: colors, borderWidth: 0 }] },
+        options: { responsive: true, maintainAspectRatio: false, cutout: "64%", plugins: { legend: { position: "bottom" } } }
+      });
+    }
+
+    function downloadCSV() {
+      if (!attempts.length) return;
+      const rows = [["Nombre", "Grupo", "Aciertos", "Total", "Nota", "Fecha"], ...attempts.map(item => [item.name, item.group, item.correct, item.total, item.score, item.date])];
+      const csv = rows.map(row => row.map(value => `"${String(value).replace(/"/g, '""')}"`).join(",")).join("\n");
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" }));
+      link.download = `resultados_python_${new Date().toISOString().slice(0, 10)}.csv`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
+
+    loadResults();
+  </script>
+</body>
+</html>
