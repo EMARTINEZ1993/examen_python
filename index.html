@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-50 text-slate-800">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proyecto Flash - Examen de Python</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js para gráficos -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- FontAwesome para íconos -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;600&display=swap');
+
+    :root {
+      color-scheme: light;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+      color: #0f172a;
+    }
+    
+    code, pre {
+      font-family: 'Fira Code', monospace;
+    }
+
+    body [class*="bg-slate-"] {
+      background-color: #f8fafc !important;
+    }
+
+    body [class*="text-slate-"] {
+      color: #0f172a !important;
+    }
+
+    body [class*="border-slate-"] {
+      border-color: #dfe7f1 !important;
+    }
+
+    body [class*="shadow-slate-"] {
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08) !important;
+    }
+
+    body .bg-slate-950\/80,
+    body .bg-slate-950\/60,
+    body .bg-slate-900\/80,
+    body .bg-slate-900\/60,
+    body .bg-slate-800\/80,
+    body .bg-slate-800\/90,
+    body .bg-slate-700\/60,
+    body .bg-slate-700\/50,
+    body .bg-slate-900\/40,
+    body .bg-slate-900\/50,
+    body .bg-slate-800\/50 {
+      background-color: rgba(255, 255, 255, 0.92) !important;
+    }
+
+    body .bg-slate-900,
+    body .bg-slate-950,
+    body .bg-slate-800,
+    body .bg-slate-700 {
+      background-color: #ffffff !important;
+    }
+
+    body .text-slate-400,
+    body .text-slate-500,
+    body .text-slate-600,
+    body .text-slate-700,
+    body .text-slate-300 {
+      color: #475569 !important;
+    }
+
+    body .text-slate-100,
+    body .text-slate-200,
+    body .text-slate-300,
+    body .text-slate-900 {
+      color: #0f172a !important;
+    }
+
+    body .bg-sky-500\/10 { background-color: rgba(14, 165, 233, 0.10) !important; }
+    body .bg-sky-500\/20 { background-color: rgba(14, 165, 233, 0.12) !important; }
+    body .bg-slate-900\/60 { background-color: rgba(255, 255, 255, 0.8) !important; }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #e2e8f0;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #94a3b8;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #64748b;
+    }
+  </style>
+</head>
+<body class="h-full flex flex-col justify-between selection:bg-sky-500 selection:text-white bg-slate-50 text-slate-800">
+
+  <!-- Header / Navbar -->
+  <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-yellow-400 p-0.5 shadow-lg shadow-sky-500/20">
+          <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
+            <i class="fa-brands fa-python text-yellow-400 text-2xl"></i>
+          </div>
+        </div>
+        <div>
+          <p class="text-xs text-slate-400">Examen Python</p>
+        </div>
+      </div>
+
+      <div id="header-status" class="hidden flex items-center gap-4 text-xs font-medium">
+        <div class="bg-slate-800 border border-slate-700/60 rounded-lg px-3 py-1.5 flex items-center gap-2">
+          <i class="fa-regular fa-clock text-sky-400"></i>
+          <span id="timer-display" class="text-slate-200">00:00</span>
+        </div>
+        <div class="bg-slate-800 border border-slate-700/60 rounded-lg px-3 py-1.5 text-slate-300">
+          Pregunta <span id="current-q-num" class="text-yellow-400 font-bold">1</span> / 15
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-grow max-w-5xl w-full mx-auto p-4 md:p-6 flex flex-col justify-center">
+
+    <!-- ==================== PANTALLA 1: REGISTRO / BLOQUEO ==================== -->
+    <section id="screen-welcome" class="w-full max-w-xl mx-auto">
+      <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-6 md:p-8 shadow-2xl backdrop-blur">
+        <div class="text-center mb-6">
+          <div class="inline-flex p-3 rounded-full bg-sky-500/10 text-sky-400 mb-3 border border-sky-500/20">
+            <i class="fa-solid fa-graduation-cap text-3xl"></i>
+          </div>
+          <h2 class="text-2xl font-bold text-white mb-1">Evaluación de Python</h2>
+          <p class="text-sm text-slate-400">Completa tus datos para ingresar a la prueba (15 preguntas)</p>
+        </div>
+
+        <!-- Mensaje de Advertencia si ya fue realizado -->
+        <div id="blocked-alert" class="hidden mb-6 p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-sm">
+          <div class="flex items-start gap-3">
+            <i class="fa-solid fa-triangle-exclamation text-amber-400 text-lg mt-0.5"></i>
+            <div>
+              <p class="font-semibold text-amber-300">Intento Registrado</p>
+              <p class="text-xs text-amber-200/80 mt-0.5">Este equipo ya ha sido utilizado para presentar el examen de Python. Puedes consultar las estadísticas generales abajo.</p>
+            </div>
+          </div>
+        </div>
+
+        <form id="form-register" onsubmit="startExam(event)" class="space-y-4">
+          <div>
+            <label for="student-name" class="block text-xs font-medium text-slate-300 mb-1">Nombre Completo</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                <i class="fa-regular fa-user"></i>
+              </span>
+              <input type="text" id="student-name" required placeholder="Ej. Ana María Gómez"
+                class="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition">
+            </div>
+          </div>
+
+          <div>
+            <label for="student-group" class="block text-xs font-medium text-slate-300 mb-1">Grupo Académico</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                <i class="fa-solid fa-users"></i>
+              </span>
+              <select id="student-group" required
+                class="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition appearance-none">
+                <option value="" disabled selected>Selecciona tu grupo</option>
+                <option value="G1">Grupo G1</option>
+                <option value="G2">Grupo G2</option>
+                <option value="G3">Grupo G3</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" id="btn-start"
+            class="w-full py-3 px-4 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-semibold rounded-xl shadow-lg shadow-sky-500/25 transition duration-200 flex items-center justify-center gap-2">
+            <span>Iniciar Examen</span>
+            <i class="fa-solid fa-arrow-right text-xs"></i>
+          </button>
+        </form>
+
+        <div id="blocked-actions" class="hidden mt-4 space-y-3">
+          <button onclick="showResultsScreen()" 
+            class="w-full py-3 px-4 bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-xl text-sm transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-chart-pie"></i> Ver Estadísticas del Equipo
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PANTALLA 2: EXAMEN ==================== -->
+    <section id="screen-exam" class="hidden w-full max-w-3xl mx-auto space-y-6">
+      <!-- Barra de Progreso -->
+      <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700">
+        <div id="progress-bar" class="bg-gradient-to-r from-sky-400 to-yellow-400 h-full w-0 transition-all duration-300"></div>
+      </div>
+
+      <!-- Tarjeta de la Pregunta -->
+      <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-6 md:p-8 shadow-2xl backdrop-blur relative">
+        <div class="flex items-center justify-between gap-2 mb-4">
+          <span id="question-category" class="text-xs font-semibold px-2.5 py-1 rounded-md bg-sky-500/10 text-sky-400 border border-sky-500/20">
+            Categoría
+          </span>
+          <span id="question-index-tag" class="text-xs text-slate-400 font-mono">
+            1 / 15
+          </span>
+        </div>
+
+        <h3 id="question-text" class="text-lg md:text-xl font-semibold text-slate-100 mb-4 leading-relaxed">
+          Texto de la pregunta
+        </h3>
+
+        <!-- Bloque de código si la pregunta lo requiere -->
+        <div id="code-container" class="hidden mb-6 rounded-xl overflow-hidden border border-slate-700 bg-slate-950 p-4">
+          <pre><code id="code-snippet" class="text-sm text-black"></code></pre>
+        </div>
+
+        <!-- Opciones de Respuesta -->
+        <div id="options-container" class="space-y-3 my-6">
+          <!-- Opciones dinámicas -->
+        </div>
+
+        <!-- Botones de Navegación -->
+        <div class="flex items-center justify-between pt-4 border-t border-slate-700/60 mt-6">
+          <button id="btn-prev" onclick="navigateQuestion(-1)" disabled
+            class="px-4 py-2 bg-slate-700/50 hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed text-slate-300 text-sm font-medium rounded-xl transition flex items-center gap-2">
+            <i class="fa-solid fa-chevron-left text-xs"></i> Anterior
+          </button>
+          
+          <button id="btn-next" onclick="navigateQuestion(1)"
+            class="px-5 py-2.5 bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-sm rounded-xl shadow-lg shadow-sky-500/20 transition flex items-center gap-2">
+            Siguiente <i class="fa-solid fa-chevron-right text-xs"></i>
+          </button>
+
+          <button id="btn-submit" onclick="confirmSubmitExam()" class="hidden px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-500/20 transition flex items-center gap-2">
+            Finalizar Examen <i class="fa-solid fa-paper-plane text-xs"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PANTALLA 3: RESULTADOS Y REPORTES ==================== -->
+    <section id="screen-results" class="hidden w-full max-w-4xl mx-auto space-y-6">
+      
+      <!-- Banner de Puntuación -->
+      <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-6 md:p-8 shadow-2xl backdrop-blur">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center text-center md:text-left">
+          
+          <div class="md:col-span-2 space-y-2">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <i class="fa-solid fa-circle-check"></i> Examen Completado
+            </span>
+            <h2 class="text-2xl md:text-3xl font-extrabold text-white">
+              <span id="res-student-name">Estudiante</span>
+            </h2>
+            <p class="text-slate-400 text-sm">
+              Grupo: <span id="res-student-group" class="text-sky-400 font-semibold">G1</span> | 
+              Fecha: <span id="res-date" class="text-slate-300">--</span>
+            </p>
+          </div>
+
+          <div class="bg-slate-900/80 border border-slate-700/80 rounded-xl p-4 flex flex-col items-center justify-center text-center">
+            <span class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Calificación Final</span>
+            <div id="res-score-badge" class="text-4xl font-extrabold text-yellow-400 my-1">
+              0.0 <span class="text-lg text-slate-400 font-normal">/ 5.0</span>
+            </div>
+            <p id="res-correct-count" class="text-xs text-slate-300">0 de 15 correctas (0%)</p>
+          </div>
+
+        </div>
+
+        <div class="mt-6 pt-6 border-t border-slate-700/60 flex flex-wrap gap-3 justify-end">
+          <button onclick="downloadCSV()" 
+            class="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white text-xs md:text-sm font-semibold rounded-xl shadow-lg shadow-emerald-600/20 transition flex items-center gap-2">
+            <i class="fa-solid fa-file-csv text-base"></i> Descargar Resultados CSV
+          </button>
+          <button onclick="resetAppForTesting()" title="Herramienta de reinicio"
+            class="py-2.5 px-3 bg-slate-700/60 hover:bg-slate-700 text-slate-300 text-xs rounded-xl transition flex items-center gap-1.5">
+            <i class="fa-solid fa-rotate-right"></i> Reiniciar Prueba
+          </button>
+        </div>
+      </div>
+
+      <!-- Gráfico de Rendimiento por Grupo -->
+      <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-6 md:p-8 shadow-2xl backdrop-blur">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+          <div>
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-chart-column text-sky-400"></i> Promedio por Grupo Académico
+            </h3>
+            <p class="text-xs text-slate-400">Comparativa de puntajes acumulados en este dispositivo</p>
+          </div>
+          <div class="text-xs text-slate-400 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-700">
+            Total Intentos: <span id="total-attempts-count" class="font-bold text-yellow-400">0</span>
+          </div>
+        </div>
+
+        <div class="relative h-64 w-full">
+          <canvas id="groupChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Tabla de Intentos Históricos -->
+      <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-6 md:p-8 shadow-2xl backdrop-blur">
+        <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+          <i class="fa-solid fa-list-check text-yellow-400"></i> Histórico de Intentos
+        </h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm text-slate-300">
+            <thead class="text-xs uppercase bg-slate-900/60 text-slate-400 border-b border-slate-700">
+              <tr>
+                <th class="py-3 px-4">Estudiante</th>
+                <th class="py-3 px-4">Grupo</th>
+                <th class="py-3 px-4">Aciertos</th>
+                <th class="py-3 px-4">Nota</th>
+                <th class="py-3 px-4">Fecha</th>
+              </tr>
+            </thead>
+            <tbody id="attempts-table-body" class="divide-y divide-slate-700/50">
+              <!-- Filas dinámicas -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Modal de Confirmación -->
+  <div id="modal-confirm" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl text-center space-y-4">
+      <div class="w-12 h-12 bg-yellow-500/10 text-yellow-400 rounded-full flex items-center justify-center mx-auto border border-yellow-500/20 text-xl">
+        <i class="fa-solid fa-circle-question"></i>
+      </div>
+      <h3 class="text-lg font-bold text-white">¿Deseas finalizar el examen?</h3>
+      <p id="modal-unanswered-msg" class="text-xs text-slate-400">Has respondido a todas las preguntas.</p>
+      <div class="flex gap-3 justify-center pt-2">
+        <button onclick="closeModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-medium rounded-xl transition">
+          Continuar Examen
+        </button>
+        <button onclick="finishExam()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-xl shadow-lg shadow-emerald-600/20 transition">
+          Sí, Finalizar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800 bg-slate-950/60 py-4 text-center text-xs text-slate-500">
+    Proyecto Flash &copy; 2026 - Evaluación de Programación en Python
+  </footer>
+
+  <script>
+/* ==========================================================================
+   BANCO DE PREGUNTAS - PYTHON
+   15 PREGUNTAS
+   ========================================================================== */
+
+const QUESTIONS = [
+  {
+    id: 1,
+    category: "Variables y salida de datos",
+    question: "¿Qué muestra en pantalla el siguiente código?",
+    code: `nombre = "Eli"
+edad = 33
+
+print(nombre)
+print(edad)`,
+    options: [
+      "Eli y luego 33",
+      "33 y luego Eli",
+      "Solo muestra Eli",
+      "Solo muestra 33"
+    ],
+    answer: 0
+  },
+
+  {
+    id: 2,
+    category: "Operadores aritméticos",
+    question: "¿Cuál es el resultado de las operaciones `10 // 3` y `10 % 3`, respectivamente?",
+    code: null,
+    options: [
+      "3 y 1",
+      "3.33 y 1",
+      "3 y 3",
+      "1 y 3"
+    ],
+    answer: 0
+  },
+
+  {
+    id: 3,
+    category: "Operadores aritméticos",
+    question: "Si una variable contiene una cantidad de minutos, ¿qué expresión permite obtener las horas completas y los minutos restantes?",
+    code: null,
+    options: [
+      "horas = minutos / 60 y resto = minutos % 60",
+      "horas = minutos // 60 y resto = minutos % 60",
+      "horas = minutos * 60 y resto = minutos / 60",
+      "horas = minutos % 60 y resto = minutos // 60"
+    ],
+    answer: 1
+  },
+
+  {
+    id: 4,
+    category: "f-strings",
+    question: "¿Cuál de las siguientes opciones permite mostrar el valor de `division` con exactamente cuatro decimales?",
+    code: `division = 10 / 3
+print(f"Resultado: {division:...}")`,
+    options: [
+      "{division:.4f}",
+      "{division:4f}",
+      "{division:.4}",
+      "{division:4}"
+    ],
+    answer: 0
+  },
+
+  {
+    id: 5,
+    category: "Condicionales",
+    question: "¿Qué mensaje muestra el siguiente programa?",
+    code: `numero = 7
+
+if numero % 2 == 0:
+    print("Par")
+else:
+    print("Impar")`,
+    options: [
+      "Muestra el mensaje: Par.",
+      "Muestra el mensaje: Impar.",
+      "Muestra el número 7.",
+      "No muestra ningún mensaje."
+    ],
+    answer: 1
+  },
+
+  {
+    id: 6,
+    category: "Condicionales",
+    question: "Si `nota` tiene un valor de 3.8, ¿qué mensaje muestra el siguiente programa?",
+    code: `nota = 3.8
+
+if nota >= 4.5:
+    print("Desempeño superior")
+elif nota >= 3.5:
+    print("Desempeño alto")
+elif nota >= 3.0:
+    print("Desempeño básico")
+else:
+    print("Bajo")`,
+    options: [
+      "Desempeño superior",
+      "Desempeño alto",
+      "Desempeño básico",
+      "Bajo"
+    ],
+    answer: 1
+  },
+
+  {
+    id: 7,
+    category: "Operadores lógicos",
+    question: "¿Qué condición permite verificar que `n1` sea mayor o igual que `n2` y también mayor o igual que `n3`?",
+    code: null,
+    options: [
+      "if n1 >= n2 or n1 >= n3:",
+      "if n1 >= n2 and n1 >= n3:",
+      "if n1 > n2 & n3:",
+      "if n1 == n2 and n1 == n3:"
+    ],
+    answer: 1
+  },
+
+  {
+    id: 8,
+    category: "Ciclos for y range()",
+    question: "¿Qué valores toma la variable `i` durante la ejecución del siguiente ciclo?",
+    code: `for i in range(1, 11):
+    print(i)`,
+    options: [
+      "Del 1 al 11.",
+      "Del 0 al 10.",
+      "Del 1 al 10.",
+      "Del 1 al 9."
+    ],
+    answer: 2
+  },
+
+  {
+    id: 9,
+    category: "Acumuladores",
+    question: "¿Qué valor se muestra al finalizar la ejecución del siguiente programa?",
+    code: `suma = 0
+
+for i in range(1, 6):
+    suma += i
+
+print(suma)`,
+    options: [
+      "10",
+      "15",
+      "20",
+      "21"
+    ],
+    answer: 1
+  },
+
+  {
+    id: 10,
+    category: "Ciclos for",
+    question: "¿Cuántas veces se muestra el mensaje `Hola`?",
+    code: `for i in range(3):
+    print("Hola")`,
+    options: [
+      "1 vez",
+      "2 veces",
+      "3 veces",
+      "4 veces"
+    ],
+    answer: 2
+  },
+
+  {
+    id: 11,
+    category: "Variables",
+    question: "¿Cuál es la forma correcta de crear una variable llamada `nota` y asignarle el valor 4.5?",
+    code: null,
+    options: [
+      "var nota = 4.5",
+      "nota = 4.5",
+      "let nota = 4.5",
+      "int nota = 4.5"
+    ],
+    answer: 1
+  },
+
+  {
+    id: 12,
+    category: "Entrada de datos",
+    question: "¿Qué función permite solicitar un dato al usuario mediante el teclado?",
+    code: `nombre = ____("¿Cuál es tu nombre? ")`,
+    options: [
+      "read()",
+      "input()",
+      "scan()",
+      "get()"
+    ],
+    answer: 1
+  },
+
+  {
+    id: 13,
+    category: "Conversión de datos",
+    question: "La función `input()` devuelve el dato como texto. ¿Qué función permite convertir la edad ingresada en un número entero?",
+    code: `edad = input("Ingrese su edad: ")
+edad = ______(edad)`,
+    options: [
+      "str()",
+      "float()",
+      "int()",
+      "bool()"
+    ],
+    answer: 2
+  },
+
+  {
+    id: 14,
+    category: "Operadores y prioridad",
+    question: "¿Qué valor muestra el siguiente programa?",
+    code: `a = 8
+b = 3
+
+resultado = a + b * 2
+
+print(resultado)`,
+    options: [
+      "22",
+      "14",
+      "16",
+      "11"
+    ],
+    answer: 1
+  },
+
+  {
+    id: 15,
+    category: "Ciclos while",
+    question: "En el siguiente programa, ¿qué sucede cuando la nota ingresada está entre 0 y 5?",
+    code: `while True:
+    nota = float(input("Ingrese la nota: "))
+
+    if 0 <= nota <= 5:
+        print("Nota válida")
+        break`,
+    options: [
+      "El ciclo comienza nuevamente.",
+      "El ciclo se detiene y continúa después del while.",
+      "El programa ignora la nota ingresada.",
+      "El programa vuelve a solicitar la nota obligatoriamente."
+    ],
+    answer: 1
+  }
+];
+    // Estado de la Aplicación
+    let currentQuestionIndex = 0;
+    let userAnswers = new Array(QUESTIONS.length).fill(null);
+    let currentUser = { name: "", group: "" };
+    let timerInterval = null;
+    let secondsElapsed = 0;
+    let chartInstance = null;
+
+    const LOCAL_STORAGE_KEY_ATTEMPTS = "flash_python_exam_attempts";
+    const LOCAL_STORAGE_KEY_DEVICE_BLOCKED = "flash_python_device_completed";
+
+    // Inicialización al cargar la página
+    window.onload = function() {
+      checkDeviceStatus();
+      renderAttemptsTable();
+    };
+
+    /* Verificación de Estado del Equipo */
+    function checkDeviceStatus() {
+      const isBlocked = localStorage.getItem(LOCAL_STORAGE_KEY_DEVICE_BLOCKED);
+      if (isBlocked === "true") {
+        document.getElementById("blocked-alert").classList.remove("hidden");
+        document.getElementById("blocked-actions").classList.remove("hidden");
+        document.getElementById("btn-start").disabled = true;
+        document.getElementById("btn-start").classList.add("opacity-50", "cursor-not-allowed");
+        document.getElementById("student-name").disabled = true;
+        document.getElementById("student-group").disabled = true;
+      }
+    }
+
+    /* Iniciar el Examen */
+    function startExam(e) {
+      e.preventDefault();
+
+      if (localStorage.getItem(LOCAL_STORAGE_KEY_DEVICE_BLOCKED) === "true") {
+        alert("Este equipo ya ha registrado un examen anteriormente.");
+        return;
+      }
+
+      const nameInput = document.getElementById("student-name").value.trim();
+      const groupInput = document.getElementById("student-group").value;
+
+      if (!nameInput || !groupInput) {
+        return;
+      }
+
+      currentUser = { name: nameInput, group: groupInput };
+
+      // Cambiar de pantalla
+      document.getElementById("screen-welcome").classList.add("hidden");
+      document.getElementById("screen-exam").classList.remove("hidden");
+      document.getElementById("header-status").classList.remove("hidden");
+
+      // Iniciar Temporizador
+      secondsElapsed = 0;
+      startTimer();
+
+      // Cargar primera pregunta
+      currentQuestionIndex = 0;
+      loadQuestion(currentQuestionIndex);
+    }
+
+    /* Manejo del Temporizador */
+    function startTimer() {
+      const timerDisplay = document.getElementById("timer-display");
+      timerInterval = setInterval(() => {
+        secondsElapsed++;
+        const mins = Math.floor(secondsElapsed / 60).toString().padStart(2, '0');
+        const secs = (secondsElapsed % 60).toString().padStart(2, '0');
+        timerDisplay.textContent = `${mins}:${secs}`;
+      }, 1000);
+    }
+
+    /* Cargar Pregunta en la UI */
+    function loadQuestion(index) {
+      const q = QUESTIONS[index];
+
+      // Actualizar Header e Índice
+      document.getElementById("current-q-num").textContent = index + 1;
+      document.getElementById("question-index-tag").textContent = `${index + 1} / ${QUESTIONS.length}`;
+      document.getElementById("question-category").textContent = q.category;
+
+      // Actualizar Barra de Progreso
+      const progressPercent = ((index + 1) / QUESTIONS.length) * 100;
+      document.getElementById("progress-bar").style.width = `${progressPercent}%`;
+
+      // Texto de Pregunta y Código
+      document.getElementById("question-text").textContent = q.question;
+      const codeContainer = document.getElementById("code-container");
+      if (q.code) {
+        document.getElementById("code-snippet").textContent = q.code;
+        codeContainer.classList.remove("hidden");
+      } else {
+        codeContainer.classList.add("hidden");
+      }
+
+      // Opciones de Respuesta
+      const optionsContainer = document.getElementById("options-container");
+      optionsContainer.innerHTML = "";
+
+      q.options.forEach((optText, i) => {
+        const isSelected = userAnswers[index] === i;
+        const optBtn = document.createElement("button");
+        optBtn.type = "button";
+        optBtn.onclick = () => selectOption(i);
+        optBtn.className = `w-full text-left p-4 rounded-xl border transition-all flex items-start gap-3 ${
+          isSelected 
+            ? 'bg-sky-50 border-2 border-sky-500 text-slate-900 font-semibold shadow-md shadow-sky-500/15' 
+            : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700'
+        }`;
+
+        const letter = String.fromCharCode(65 + i); // A, B, C, D
+        optBtn.innerHTML = `
+          <span class="w-6 h-6 rounded-lg ${isSelected ? 'bg-sky-500 text-white font-bold' : 'bg-slate-200 text-slate-700'} flex items-center justify-center text-xs flex-shrink-0 mt-0.5">
+            ${letter}
+          </span>
+          <span class="text-sm leading-relaxed ${isSelected ? 'text-slate-900' : 'text-slate-700'}">${escapeHtml(optText)}</span>
+        `;
+        optionsContainer.appendChild(optBtn);
+      });
+
+      // Botones de Navegación
+      document.getElementById("btn-prev").disabled = (index === 0);
+      
+      if (index === QUESTIONS.length - 1) {
+        document.getElementById("btn-next").classList.add("hidden");
+        document.getElementById("btn-submit").classList.remove("hidden");
+      } else {
+        document.getElementById("btn-next").classList.remove("hidden");
+        document.getElementById("btn-submit").classList.add("hidden");
+      }
+    }
+
+    function selectOption(optionIndex) {
+      userAnswers[currentQuestionIndex] = optionIndex;
+      loadQuestion(currentQuestionIndex);
+    }
+
+    function navigateQuestion(direction) {
+      const newIndex = currentQuestionIndex + direction;
+      if (newIndex >= 0 && newIndex < QUESTIONS.length) {
+        currentQuestionIndex = newIndex;
+        loadQuestion(currentQuestionIndex);
+      }
+    }
+
+    /* Finalizar Examen */
+    function confirmSubmitExam() {
+      const unanswered = userAnswers.filter(a => a === null).length;
+      const unansweredMsg = document.getElementById("modal-unanswered-msg");
+      
+      if (unanswered > 0) {
+        unansweredMsg.textContent = `Atención: Tienes ${unanswered} pregunta(s) sin responder.`;
+        unansweredMsg.className = "text-xs text-amber-400 font-medium";
+      } else {
+        unansweredMsg.textContent = "Has respondido todas las preguntas satisfactoriamente.";
+        unansweredMsg.className = "text-xs text-emerald-400 font-medium";
+      }
+
+      document.getElementById("modal-confirm").classList.remove("hidden");
+    }
+
+    function closeModal() {
+      document.getElementById("modal-confirm").classList.add("hidden");
+    }
+
+    function finishExam() {
+      closeModal();
+      clearInterval(timerInterval);
+
+      // Calcular Puntuación
+      let correctCount = 0;
+      QUESTIONS.forEach((q, idx) => {
+        if (userAnswers[idx] === q.answer) {
+          correctCount++;
+        }
+      });
+
+      // Nota sobre 5.0
+      const scoreOnFive = ((correctCount / QUESTIONS.length) * 5.0).toFixed(1);
+
+      // Guardar Resultado
+      const now = new Date();
+      const formattedDate = `${now.toLocaleDateString()} ${now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+
+      const attemptData = {
+        name: currentUser.name,
+        group: currentUser.group,
+        correct: correctCount,
+        total: QUESTIONS.length,
+        score: scoreOnFive,
+        date: formattedDate
+      };
+
+      saveAttempt(attemptData);
+
+      // Bloquear Equipo
+      localStorage.setItem(LOCAL_STORAGE_KEY_DEVICE_BLOCKED, "true");
+
+      // Mostrar Resultados
+      showResultsScreen(attemptData);
+    }
+
+    function saveAttempt(data) {
+      const attempts = getStoredAttempts();
+      attempts.push(data);
+      localStorage.setItem(LOCAL_STORAGE_KEY_ATTEMPTS, JSON.stringify(attempts));
+    }
+
+    function getStoredAttempts() {
+      const raw = localStorage.getItem(LOCAL_STORAGE_KEY_ATTEMPTS);
+      return raw ? JSON.parse(raw) : [];
+    }
+
+    /* Mostrar Pantalla de Resultados */
+    function showResultsScreen(currentAttempt = null) {
+      document.getElementById("screen-welcome").classList.add("hidden");
+      document.getElementById("screen-exam").classList.add("hidden");
+      document.getElementById("header-status").classList.add("hidden");
+      document.getElementById("screen-results").classList.remove("hidden");
+
+      const attempts = getStoredAttempts();
+      const lastAttempt = currentAttempt || (attempts.length > 0 ? attempts[attempts.length - 1] : null);
+
+      if (lastAttempt) {
+        document.getElementById("res-student-name").textContent = lastAttempt.name;
+        document.getElementById("res-student-group").textContent = lastAttempt.group;
+        document.getElementById("res-date").textContent = lastAttempt.date;
+        document.getElementById("res-score-badge").innerHTML = `${lastAttempt.score} <span class="text-lg text-slate-400 font-normal">/ 5.0</span>`;
+        
+        const pct = Math.round((lastAttempt.correct / lastAttempt.total) * 100);
+        document.getElementById("res-correct-count").textContent = `${lastAttempt.correct} de ${lastAttempt.total} correctas (${pct}%)`;
+      } else {
+        document.getElementById("res-student-name").textContent = "Sin Registro";
+        document.getElementById("res-student-group").textContent = "--";
+        document.getElementById("res-date").textContent = "--";
+        document.getElementById("res-score-badge").innerHTML = `0.0 <span class="text-lg text-slate-400 font-normal">/ 5.0</span>`;
+        document.getElementById("res-correct-count").textContent = "0 de 15 correctas";
+      }
+
+      document.getElementById("total-attempts-count").textContent = attempts.length;
+
+      renderAttemptsTable();
+      renderGroupChart();
+    }
+
+    /* Renderizar Tabla Histórica */
+    function renderAttemptsTable() {
+      const attempts = getStoredAttempts();
+      const tbody = document.getElementById("attempts-table-body");
+      tbody.innerHTML = "";
+
+      if (attempts.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-slate-500 italic">No hay intentos registrados aún.</td></tr>`;
+        return;
+      }
+
+      attempts.slice().reverse().forEach(att => {
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-700/30 transition";
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-medium text-slate-200">${escapeHtml(att.name)}</td>
+          <td class="py-3 px-4"><span class="px-2 py-0.5 rounded bg-sky-500/10 text-sky-400 text-xs font-semibold">${att.group}</span></td>
+          <td class="py-3 px-4">${att.correct} / ${att.total}</td>
+          <td class="py-3 px-4 font-bold text-yellow-400">${att.score}</td>
+          <td class="py-3 px-4 text-xs text-slate-400">${att.date}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    /* Renderizar Gráfico por Grupo */
+    function renderGroupChart() {
+      const attempts = getStoredAttempts();
+      const groups = ["G1", "G2", "G3"];
+      
+      const groupScores = { G1: [], G2: [], G3: [] };
+
+      attempts.forEach(att => {
+        if (groupScores[att.group]) {
+          groupScores[att.group].push(parseFloat(att.score));
+        }
+      });
+
+      const groupAverages = groups.map(g => {
+        const scores = groupScores[g];
+        if (scores.length === 0) return 0;
+        const sum = scores.reduce((a, b) => a + b, 0);
+        return (sum / scores.length).toFixed(2);
+      });
+
+      const ctx = document.getElementById("groupChart").getContext("2d");
+
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
+
+      chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Grupo G1', 'Grupo G2', 'Grupo G3'],
+          datasets: [{
+            label: 'Promedio de Nota (0.0 - 5.0)',
+            data: groupAverages,
+            backgroundColor: [
+              'rgba(56, 189, 248, 0.7)',
+              'rgba(250, 204, 21, 0.7)',
+              'rgba(16, 185, 129, 0.7)'
+            ],
+            borderColor: [
+              '#38bdf8',
+              '#facc15',
+              '#10b981'
+            ],
+            borderWidth: 2,
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 5.0,
+              grid: { color: 'rgba(148, 163, 184, 0.35)' },
+              ticks: { color: '#334155' }
+            },
+            x: {
+              grid: { display: false },
+              ticks: { color: '#334155' }
+            }
+          },
+          plugins: {
+            legend: {
+              labels: { color: '#0f172a', font: { family: 'Inter' } }
+            }
+          }
+        }
+      });
+    }
+
+    /* Descargar Archivo CSV */
+    function downloadCSV() {
+      const attempts = getStoredAttempts();
+      if (attempts.length === 0) {
+        alert("No existen datos registradas para exportar.");
+        return;
+      }
+
+      let csvContent = "data:text/csv;charset=utf-8,";
+      csvContent += "Nombre,Grupo,Puntaje,Fecha\n";
+
+      attempts.forEach(row => {
+        const cleanName = `"${row.name.replace(/"/g, '""')}"`;
+        const scoreStr = `"${row.correct}/${row.total} (${row.score})"`;
+        csvContent += `${cleanName},${row.group},${scoreStr},"${row.date}"\n`;
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `resultados_examen_python_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    /* Utilidad para reiniciar pruebas */
+    function resetAppForTesting() {
+      if (confirm("¿Deseas borrar el registro del equipo y probar un nuevo intento?")) {
+        localStorage.removeItem(LOCAL_STORAGE_KEY_DEVICE_BLOCKED);
+        location.reload();
+      }
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+  </script>
+</body>
+</html>
