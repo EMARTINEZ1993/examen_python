@@ -26,6 +26,12 @@ function doGet() {
 }
 
 function doPost(e) {
+  if (!e || !e.postData || !e.postData.contents) {
+    return ContentService
+      .createTextOutput("Esta función se ejecuta desde el examen. Para probarla manualmente, ejecuta testDoPost().")
+      .setMimeType(ContentService.MimeType.TEXT);
+  }
+
   const data = JSON.parse(e.postData.contents);
   const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = spreadsheet.getSheetByName(SHEET_NAME) || spreadsheet.insertSheet(SHEET_NAME);
@@ -46,4 +52,19 @@ function doPost(e) {
   return ContentService
     .createTextOutput(JSON.stringify({ ok: true }))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+function testDoPost() {
+  doPost({
+    postData: {
+      contents: JSON.stringify({
+        name: "Prueba docente",
+        group: "G1",
+        correct: 15,
+        total: 15,
+        score: "5.0",
+        date: new Date().toLocaleString()
+      })
+    }
+  });
 }
